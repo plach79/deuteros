@@ -81,14 +81,14 @@ class FieldItemListDoubleBuilderTest extends TestCase {
   }
 
   /**
-   * Tests ::getValue resolver normalizes scalar to single-item array.
+   * Tests ::getValue resolver normalizes scalar to property array.
    */
   public function testGetValueResolverNormalizesScalar(): void {
     $definition = new FieldDoubleDefinition('scalar value');
     $builder = new FieldItemListDoubleBuilder($definition, 'field_test');
     $resolvers = $builder->getResolvers();
 
-    $this->assertSame(['scalar value'], $resolvers['getValue']([]));
+    $this->assertSame([['value' => 'scalar value']], $resolvers['getValue']([]));
   }
 
   /**
@@ -276,7 +276,7 @@ class FieldItemListDoubleBuilderTest extends TestCase {
     $resolvers = $builder->getResolvers();
 
     $values = $resolvers['getValue'](['computed_value' => 'dynamic']);
-    $this->assertSame(['dynamic'], $values);
+    $this->assertSame([['value' => 'dynamic']], $values);
   }
 
   /**
@@ -413,6 +413,36 @@ class FieldItemListDoubleBuilderTest extends TestCase {
     $builder = new FieldItemListDoubleBuilder($definition, 'field_test');
 
     $this->assertSame($definition, $builder->getFieldDefinition());
+  }
+
+  /**
+   * Tests ::getValue resolver with single item having multiple properties.
+   */
+  public function testGetValueResolverSingleItemMultipleProperties(): void {
+    $value = ['uri' => 'https://example.com', 'title' => 'Example'];
+    $definition = new FieldDoubleDefinition($value);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_link');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertSame(
+      [['uri' => 'https://example.com', 'title' => 'Example']],
+      $resolvers['getValue']([])
+    );
+  }
+
+  /**
+   * Tests ::getValue resolver with multiple items having multiple properties.
+   */
+  public function testGetValueResolverMultipleItemsMultipleProperties(): void {
+    $values = [
+      ['uri' => 'https://example.com', 'title' => 'Example'],
+      ['uri' => 'https://drupal.org', 'title' => 'Drupal'],
+    ];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_links');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertSame($values, $resolvers['getValue']([]));
   }
 
   /**

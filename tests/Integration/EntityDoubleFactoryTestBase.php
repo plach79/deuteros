@@ -777,4 +777,124 @@ abstract class EntityDoubleFactoryTestBase extends TestCase {
     $this->assertTrue($entity->get('field_tags')->isEmpty());
   }
 
+  /**
+   * Tests ::getValue returns property arrays for scalar fields.
+   */
+  public function testGetValueReturnsPropertyArrays(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_title', 'Test Title')
+        ->field('field_count', 42)
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    // FieldItemList::getValue() should return array of property arrays.
+    $this->assertSame(
+      [['value' => 'Test Title']],
+      $entity->get('field_title')->getValue()
+    );
+    $this->assertSame(
+      [['value' => 42]],
+      $entity->get('field_count')->getValue()
+    );
+  }
+
+  /**
+   * Tests field item ::getValue returns property array.
+   */
+  public function testFieldItemGetValueReturnsPropertyArray(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_title', 'Test Title')
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    // FieldItem::getValue() should return property array.
+    $first = $entity->get('field_title')->first();
+    assert($first !== NULL);
+    $this->assertSame(['value' => 'Test Title'], $first->getValue());
+  }
+
+  /**
+   * Tests ::getValue preserves existing property structure.
+   */
+  public function testGetValuePreservesExistingStructure(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_tags', [['target_id' => 1], ['target_id' => 2]])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $this->assertSame(
+      [['target_id' => 1], ['target_id' => 2]],
+      $entity->get('field_tags')->getValue()
+    );
+  }
+
+  /**
+   * Tests ::getValue with single item having multiple properties.
+   */
+  public function testGetValueSingleItemMultipleProperties(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_link', ['uri' => 'https://example.com', 'title' => 'Example'])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $this->assertSame(
+      [['uri' => 'https://example.com', 'title' => 'Example']],
+      $entity->get('field_link')->getValue()
+    );
+
+    // Also verify field item getValue().
+    $first = $entity->get('field_link')->first();
+    assert($first !== NULL);
+    $this->assertSame(
+      ['uri' => 'https://example.com', 'title' => 'Example'],
+      $first->getValue()
+    );
+  }
+
+  /**
+   * Tests ::getValue with multiple items each having multiple properties.
+   */
+  public function testGetValueMultipleItemsMultipleProperties(): void {
+    $values = [
+      ['uri' => 'https://example.com', 'title' => 'Example'],
+      ['uri' => 'https://drupal.org', 'title' => 'Drupal'],
+    ];
+
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_links', $values)
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $this->assertSame($values, $entity->get('field_links')->getValue());
+
+    // Verify individual items.
+    $item0 = $entity->get('field_links')->get(0);
+    $item1 = $entity->get('field_links')->get(1);
+    assert($item0 !== NULL && $item1 !== NULL);
+
+    $this->assertSame(
+      ['uri' => 'https://example.com', 'title' => 'Example'],
+      $item0->getValue()
+    );
+    $this->assertSame(
+      ['uri' => 'https://drupal.org', 'title' => 'Drupal'],
+      $item1->getValue()
+    );
+  }
+
 }

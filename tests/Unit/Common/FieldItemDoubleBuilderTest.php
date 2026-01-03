@@ -78,17 +78,17 @@ class FieldItemDoubleBuilderTest extends TestCase {
   }
 
   /**
-   * Tests ::getValue resolver returns the raw value.
+   * Tests ::getValue resolver returns property array.
    */
   public function testGetValueResolver(): void {
     $builder = new FieldItemDoubleBuilder('raw value', 0, 'field_text');
     $resolvers = $builder->getResolvers();
 
-    $this->assertSame('raw value', $resolvers['getValue']([]));
+    $this->assertSame(['value' => 'raw value'], $resolvers['getValue']([]));
   }
 
   /**
-   * Tests ::getValue resolver returns array value.
+   * Tests ::getValue resolver preserves existing property structure.
    */
   public function testGetValueResolverArray(): void {
     $value = ['target_id' => 42];
@@ -121,9 +121,9 @@ class FieldItemDoubleBuilderTest extends TestCase {
 
     $resolvers['setValue']([], 'updated');
 
-    // Verify through getValue.
-    $this->assertSame('updated', $resolvers['getValue']([]));
-    // Also verify through public getter.
+    // Verify through getValue (returns property array).
+    $this->assertSame(['value' => 'updated'], $resolvers['getValue']([]));
+    // Also verify through public getter (returns raw value).
     $this->assertSame('updated', $builder->getValue());
   }
 
@@ -235,6 +235,17 @@ class FieldItemDoubleBuilderTest extends TestCase {
     $builder = new FieldItemDoubleBuilder('test value', 0, 'field_test');
 
     $this->assertSame('test value', $builder->getValue());
+  }
+
+  /**
+   * Tests ::getValue resolver preserves multiple properties.
+   */
+  public function testGetValueResolverMultipleProperties(): void {
+    $value = ['uri' => 'https://example.com', 'title' => 'Example'];
+    $builder = new FieldItemDoubleBuilder($value, 0, 'field_link');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertSame($value, $resolvers['getValue']([]));
   }
 
 }

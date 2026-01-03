@@ -171,8 +171,9 @@ $item = $entity->get('field_name')->get(0);
 // Check if empty
 $isEmpty = $entity->get('field_name')->isEmpty();
 
-// Get all values as array
+// Get all values as array of property arrays
 $values = $entity->get('field_name')->getValue();
+// Returns: [['value' => 'field value']]
 ```
 
 **Magic Property Access**
@@ -368,7 +369,7 @@ $entities = $entity->get('field_tags')->referencedEntities();
 // Returns [$tag1, $tag2, $tag3]
 ```
 
-**Mutable Doubles**
+### Mutable Doubles
 
 By default, entity doubles are immutable. Use `createMutable()` for doubles that can be modified:
 
@@ -402,7 +403,7 @@ $entity = $factory->create(/* ... */);
 $entity->set('field_status', 'new'); // Throws LogicException
 ```
 
-**Method Overrides**
+### Method Overrides
 
 Override any method with a custom implementation:
 
@@ -456,7 +457,7 @@ $entity->getChangedTime(); // 1704067200
 
 **Defining a double from an interface hierarchy**
 
-The `::fromInterface` auto-discovers the interface hierarchy:
+The `::fromInterface` method auto-discovers the interface hierarchy:
 
 ```php
 $entity = $factory->create(

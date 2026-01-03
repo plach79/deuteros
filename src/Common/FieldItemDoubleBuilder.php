@@ -89,11 +89,38 @@ final class FieldItemDoubleBuilder {
   /**
    * Builds the ::getValue resolver.
    *
+   * Returns the field item value as an associative array with property names
+   * as keys, matching Drupal's "FieldItemInterface::getValue()" behavior.
+   *
    * @return callable
    *   The resolver callable.
    */
   private function buildGetValueResolver(): callable {
-    return fn(array $context): mixed => $this->value;
+    return fn(array $context): array => $this->ensurePropertyStructure($this->value);
+  }
+
+  /**
+   * Ensures a value has property structure.
+   *
+   * If the value is a scalar or doesn't have associative keys, wraps it with
+   * the "value" property name. Values that already have property structure
+   * (associative arrays) are returned unchanged.
+   *
+   * @param mixed $value
+   *   The raw value.
+   *
+   * @return array<string, mixed>
+   *   The value with property structure.
+   */
+  private function ensurePropertyStructure(mixed $value): array {
+    // Already has property structure (associative array with string keys).
+    if (is_array($value) && !array_is_list($value)) {
+      /** @var array<string, mixed> $value */
+      return $value;
+    }
+
+    // Wrap scalar or indexed array with 'value' property.
+    return ['value' => $value];
   }
 
   /**
