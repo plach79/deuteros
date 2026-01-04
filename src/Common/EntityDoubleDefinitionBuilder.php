@@ -113,6 +113,11 @@ final class EntityDoubleDefinitionBuilder {
   private array $traits = [];
 
   /**
+   * The URL for ::toUrl (scalar or callable).
+   */
+  private mixed $url = NULL;
+
+  /**
    * Private constructor - use create(), from(), or fromInterface() methods.
    *
    * @param string $entityType
@@ -209,6 +214,7 @@ final class EntityDoubleDefinitionBuilder {
     $builder->primaryInterface = $definition->primaryInterface;
     $builder->lenient = $definition->lenient;
     $builder->traits = $definition->traits;
+    $builder->url = $definition->url;
     return $builder;
   }
 
@@ -460,6 +466,23 @@ final class EntityDoubleDefinitionBuilder {
   }
 
   /**
+   * Sets the URL for ::toUrl.
+   *
+   * When configured, the entity double's ::toUrl method will return a Url
+   * double. The Url double's ::toString method returns the specified URL
+   * string, and ::toString(TRUE) returns a GeneratedUrl double.
+   *
+   * @param mixed $url
+   *   The URL string (scalar or callable receiving context array).
+   *
+   * @return $this
+   */
+  public function url(mixed $url): self {
+    $this->url = $url;
+    return $this;
+  }
+
+  /**
    * Builds the EntityDoubleDefinition.
    *
    * @return \Deuteros\Common\EntityDoubleDefinition
@@ -489,6 +512,7 @@ final class EntityDoubleDefinitionBuilder {
       primaryInterface: $this->primaryInterface,
       lenient: $this->lenient,
       traits: $this->traits,
+      url: $this->url,
     );
   }
 

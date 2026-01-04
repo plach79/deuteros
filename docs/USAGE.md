@@ -147,6 +147,12 @@ The `EntityDoubleDefinitionBuilder` provides a fluent interface for configuring 
 | `trait(string $traitClassName)` | Adds a trait to apply to the entity double     |
 | `traits(array $traitClassNames)` | Adds multiple traits to apply at once          |
 
+### URL Methods
+
+| Method | Description                                    |
+|--------|------------------------------------------------|
+| `url(string\|callable $url)` | Sets the URL for ::toUrl() method              |
+
 ### Other Methods
 
 | Method | Description                                                                 |
@@ -491,6 +497,46 @@ $entity = $factory->create(
 $entity->id(); // 999
 ```
 
+### URL Support
+
+Configure the entity's `::toUrl()` method to return a Url double:
+
+```php
+$entity = $factory->create(
+  EntityDoubleDefinitionBuilder::create('node')
+    ->id(42)
+    ->url('/node/42')
+    ->build()
+);
+
+// Get the Url double
+$url = $entity->toUrl();
+
+// Get the URL string
+$url->toString();        // '/node/42'
+$url->toString(FALSE);   // '/node/42'
+
+// Get GeneratedUrl with bubbleable metadata
+$generatedUrl = $url->toString(TRUE);
+$generatedUrl->getGeneratedUrl(); // '/node/42'
+```
+
+**Dynamic URLs with Callbacks**
+
+Use callbacks for dynamic URL generation based on context:
+
+```php
+$entity = $factory->create(
+  EntityDoubleDefinitionBuilder::create('node')
+    ->id(fn(array $context) => $context['id'])
+    ->url(fn(array $context) => '/node/' . $context['id'])
+    ->build(),
+  ['id' => 42]
+);
+
+$entity->toUrl()->toString(); // '/node/42'
+```
+
 ### Interface Composition
 
 **Adding Multiple Interfaces**
@@ -678,7 +724,6 @@ Entity doubles are lightweight value objects. Operations requiring runtime servi
 **Service-Dependent Operations**
 
 - `access()` - Requires access control handler
-- `toUrl()` - Requires URL generator service
 - `toLink()` - Requires link generator service
 
 **Field Definition Operations**

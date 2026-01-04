@@ -11,11 +11,14 @@ use Deuteros\Common\EntityDoubleFactoryInterface;
 use Deuteros\Common\FieldItemDoubleBuilder;
 use Deuteros\Common\FieldItemListDoubleBuilder;
 use Deuteros\Common\GuardrailEnforcer;
+use Deuteros\Common\UrlDoubleBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\GeneratedUrl;
+use Drupal\Core\Url;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\MethodProphecy;
@@ -171,6 +174,23 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         }
       );
       $prophecy->addMethodProphecy($setMethodProphecy);
+    }
+
+    // Wire toUrl - either with resolver if configured, or with exception.
+    if ($definition->url !== NULL) {
+      // @phpstan-ignore-next-line
+      $prophecy->toUrl(Argument::cetera())->will(
+        fn(array $args) => $resolvers['toUrl']($context, $args[0] ?? NULL, $args[1] ?? [])
+      );
+    }
+    elseif (!$definition->hasMethod('toUrl')) {
+      // @phpstan-ignore-next-line
+      $prophecy->toUrl(Argument::cetera())->will(
+        fn() => throw new \LogicException(
+          "Method 'toUrl' requires url() to be configured in the entity double definition. "
+          . "Add ->url('/path/to/entity') to your builder."
+        )
+      );
     }
 
     // Wire method overrides.
@@ -434,6 +454,63 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
 
     /** @var \Drupal\Core\Entity\EntityInterface $stub */
     return $stub;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function createUrlDoubleObject(): object {
+    return $this->prophet->prophesize(Url::class);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function createGeneratedUrlDoubleObject(): object {
+    return $this->prophet->prophesize(GeneratedUrl::class);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function wireUrlResolvers(object $double, UrlDoubleBuilder $builder, array $context): void {
+    /** @var \Prophecy\Prophecy\ObjectProphecy<\Drupal\Core\Url> $prophecy */
+    $prophecy = $double;
+    $resolvers = $builder->getResolvers();
+
+    // @phpstan-ignore-next-line
+    $prophecy->toString(Argument::any())->will(
+      fn(array $args) => $resolvers['toString']($context, $args[0] ?? FALSE)
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function wireGeneratedUrlResolvers(object $double, string $url): void {
+    /** @var \Prophecy\Prophecy\ObjectProphecy<\Drupal\Core\GeneratedUrl> $prophecy */
+    $prophecy = $double;
+    // @phpstan-ignore-next-line
+    $prophecy->getGeneratedUrl()->willReturn($url);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function instantiateUrlDouble(object $double): Url {
+    /** @var \Prophecy\Prophecy\ObjectProphecy<\Drupal\Core\Url> $prophecy */
+    $prophecy = $double;
+    /** @var \Drupal\Core\Url */
+    return $prophecy->reveal();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function instantiateGeneratedUrlDouble(object $double): object {
+    /** @var \Prophecy\Prophecy\ObjectProphecy<\Drupal\Core\GeneratedUrl> $prophecy */
+    $prophecy = $double;
+    return $prophecy->reveal();
   }
 
 }

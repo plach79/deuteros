@@ -16,6 +16,8 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Deuteros\Tests\Fixtures\SecondTestTrait;
 use Deuteros\Tests\Fixtures\TestBundleTrait;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
+use Drupal\Core\GeneratedUrl;
+use Drupal\Core\Url;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -1121,6 +1123,59 @@ abstract class EntityDoubleFactoryTestBase extends TestCase {
     assert($entity instanceof FieldableEntityInterface);
 
     $this->assertSame('node', $entity->get('field_type')->value);
+  }
+
+  /**
+   * Tests toUrl basic functionality.
+   */
+  public function testToUrlBasicFunctionality(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->id(1)
+        ->url('/node/1')
+        ->build()
+    );
+
+    $url = $entity->toUrl();
+    // @phpstan-ignore method.alreadyNarrowedType
+    $this->assertInstanceOf(Url::class, $url);
+    $this->assertSame('/node/1', $url->toString());
+    $this->assertSame('/node/1', $url->toString(FALSE));
+  }
+
+  /**
+   * Tests toUrl with GeneratedUrl.
+   */
+  public function testToUrlWithGeneratedUrl(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->id(42)
+        ->url('/node/42')
+        ->build()
+    );
+
+    $url = $entity->toUrl();
+    $generatedUrl = $url->toString(TRUE);
+
+    // @phpstan-ignore method.alreadyNarrowedType
+    $this->assertInstanceOf(GeneratedUrl::class, $generatedUrl);
+    $this->assertSame('/node/42', $generatedUrl->getGeneratedUrl());
+  }
+
+  /**
+   * Tests toUrl when not configured throws.
+   */
+  public function testToUrlNotConfiguredThrows(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->id(1)
+        ->build()
+    );
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage("Method 'toUrl' requires url() to be configured");
+
+    $entity->toUrl();
   }
 
 }

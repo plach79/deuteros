@@ -11,11 +11,14 @@ use Deuteros\Common\EntityDoubleFactoryInterface;
 use Deuteros\Common\FieldItemDoubleBuilder;
 use Deuteros\Common\FieldItemListDoubleBuilder;
 use Deuteros\Common\GuardrailEnforcer;
+use Deuteros\Common\UrlDoubleBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\GeneratedUrl;
+use Drupal\Core\Url;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -135,8 +138,24 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
       }
     }
 
+    // Wire toUrl - either with resolver if configured, or with exception.
+    if ($definition->url !== NULL) {
+      $wireMethod('toUrl', fn(?string $rel = NULL, array $options = []) => $resolvers['toUrl']($context, $rel, $options));
+    }
+    elseif (!$definition->hasMethod('toUrl')) {
+      $mock->method('toUrl')->willReturnCallback(
+        fn() => throw new \LogicException(
+          "Method 'toUrl' requires url() to be configured in the entity double definition. "
+          . "Add ->url('/path/to/entity') to your builder."
+        )
+      );
+    }
+
     // Wire remaining method overrides (those not already wired above).
-    $coreMethodsWired = ['id', 'uuid', 'label', 'bundle', 'getEntityTypeId', 'hasField', 'get', 'set', '__get', '__set'];
+    $coreMethodsWired = [
+      'id', 'uuid', 'label', 'bundle', 'getEntityTypeId',
+      'hasField', 'get', 'set', '__get', '__set', 'toUrl',
+    ];
     foreach ($definition->methods as $method => $override) {
       if (in_array($method, $coreMethodsWired, TRUE)) {
         // Already handled above.
@@ -373,6 +392,63 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
       $value = $property->getValue($source);
       $property->setValue($target, $value);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function createUrlDoubleObject(): object {
+    $mock = static::invokeNonPublicMethod($this->testCase, 'createMock', Url::class);
+    assert(is_object($mock));
+    return $mock;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function createGeneratedUrlDoubleObject(): object {
+    $mock = static::invokeNonPublicMethod($this->testCase, 'createMock', GeneratedUrl::class);
+    assert(is_object($mock));
+    return $mock;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function wireUrlResolvers(object $double, UrlDoubleBuilder $builder, array $context): void {
+    /** @var \PHPUnit\Framework\MockObject\MockObject $mock */
+    $mock = $double;
+    $resolvers = $builder->getResolvers();
+
+    $mock->method('toString')->willReturnCallback(
+      fn(bool $collectBubbleableMetadata = FALSE) => $resolvers['toString']($context, $collectBubbleableMetadata)
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function wireGeneratedUrlResolvers(object $double, string $url): void {
+    /** @var \PHPUnit\Framework\MockObject\MockObject $mock */
+    $mock = $double;
+    $mock->method('getGeneratedUrl')->willReturn($url);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function instantiateUrlDouble(object $double): Url {
+    // PHPUnit mocks are already usable as-is.
+    /** @var \Drupal\Core\Url $double */
+    return $double;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function instantiateGeneratedUrlDouble(object $double): object {
+    // PHPUnit mocks are already usable as-is.
+    return $double;
   }
 
 }

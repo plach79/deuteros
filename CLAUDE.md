@@ -92,9 +92,10 @@ Workflow file: `.github/workflows/ci.yml`
    - Pure PHP, no Drupal dependencies
 
 2. **Core Resolution Layer** (`Deuteros\Common\*DoubleBuilder`)
-   - `EntityDoubleBuilder` - Resolvers for entity methods (id, uuid, bundle, etc.)
+   - `EntityDoubleBuilder` - Resolvers for entity methods (id, uuid, bundle, toUrl, etc.)
    - `FieldItemListDoubleBuilder` - Resolvers for field lists (first, get, getValue)
    - `FieldItemDoubleBuilder` - Resolvers for field items
+   - `UrlDoubleBuilder` - Resolvers for Url doubles (toString)
    - Framework-agnostic: no PHPUnit/Prophecy references
 
 3. **Shared Support**

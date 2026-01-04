@@ -370,4 +370,136 @@ class EntityDoubleBuilderTest extends TestCase {
     $this->assertSame('taxonomy_term', $resolver($normalized->context));
   }
 
+  /**
+   * Tests ::toUrl resolver with a static URL value.
+   */
+  public function testToUrlResolverWithStaticValue(): void {
+    $definition = new EntityDoubleDefinition(
+      entityType: 'node',
+      url: '/node/1',
+    );
+    $builder = new EntityDoubleBuilder($definition);
+
+    $urlDouble = new \stdClass();
+    $capturedUrl = NULL;
+    $builder->setUrlDoubleFactory(function (string $url) use ($urlDouble, &$capturedUrl) {
+      $capturedUrl = $url;
+      return $urlDouble;
+    });
+
+    $resolvers = $builder->getResolvers();
+    $result = $resolvers['toUrl']([]);
+
+    $this->assertSame($urlDouble, $result);
+    $this->assertSame('/node/1', $capturedUrl);
+  }
+
+  /**
+   * Tests ::toUrl resolver with a callable URL value.
+   */
+  public function testToUrlResolverWithCallable(): void {
+    $definition = new EntityDoubleDefinition(
+      entityType: 'node',
+      url: static function (array $context): string {
+        $id = $context['id'] ?? '';
+        assert(is_scalar($id));
+        return '/node/' . $id;
+      },
+    );
+    $builder = new EntityDoubleBuilder($definition);
+
+    $urlDouble = new \stdClass();
+    $capturedUrl = NULL;
+    $builder->setUrlDoubleFactory(function (string $url) use ($urlDouble, &$capturedUrl) {
+      $capturedUrl = $url;
+      return $urlDouble;
+    });
+
+    $resolvers = $builder->getResolvers();
+    $result = $resolvers['toUrl'](['id' => 42]);
+
+    $this->assertSame($urlDouble, $result);
+    $this->assertSame('/node/42', $capturedUrl);
+  }
+
+  /**
+   * Tests ::toUrl resolver caches the Url double.
+   */
+  public function testToUrlResolverCachesUrlDouble(): void {
+    $definition = new EntityDoubleDefinition(
+      entityType: 'node',
+      url: '/node/1',
+    );
+    $builder = new EntityDoubleBuilder($definition);
+
+    $callCount = 0;
+    $urlDouble = new \stdClass();
+    $builder->setUrlDoubleFactory(function () use ($urlDouble, &$callCount) {
+      $callCount++;
+      return $urlDouble;
+    });
+
+    $resolvers = $builder->getResolvers();
+    $first = $resolvers['toUrl']([]);
+    $second = $resolvers['toUrl']([]);
+
+    $this->assertSame($urlDouble, $first);
+    $this->assertSame($first, $second);
+    $this->assertSame(1, $callCount, 'Factory should only be called once');
+  }
+
+  /**
+   * Tests ::toUrl resolver ignores $rel and $options parameters.
+   */
+  public function testToUrlResolverIgnoresParameters(): void {
+    $definition = new EntityDoubleDefinition(
+      entityType: 'node',
+      url: '/node/1',
+    );
+    $builder = new EntityDoubleBuilder($definition);
+
+    $urlDouble = new \stdClass();
+    $builder->setUrlDoubleFactory(fn() => $urlDouble);
+
+    $resolvers = $builder->getResolvers();
+
+    // All these should return the same cached double.
+    $canonical = $resolvers['toUrl']([], 'canonical', []);
+    $editForm = $resolvers['toUrl']([], 'edit-form', ['absolute' => TRUE]);
+
+    $this->assertSame($urlDouble, $canonical);
+    $this->assertSame($urlDouble, $editForm);
+  }
+
+  /**
+   * Tests ::toUrl resolver throws when url not configured.
+   */
+  public function testToUrlResolverThrowsWhenNotConfigured(): void {
+    $definition = new EntityDoubleDefinition(entityType: 'node');
+    $builder = new EntityDoubleBuilder($definition);
+    $resolvers = $builder->getResolvers();
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage("Method 'toUrl' requires url() to be configured");
+
+    $resolvers['toUrl']([]);
+  }
+
+  /**
+   * Tests ::toUrl resolver throws without factory.
+   */
+  public function testToUrlResolverThrowsWithoutFactory(): void {
+    $definition = new EntityDoubleDefinition(
+      entityType: 'node',
+      url: '/node/1',
+    );
+    $builder = new EntityDoubleBuilder($definition);
+    $resolvers = $builder->getResolvers();
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('Url double factory not set');
+
+    $resolvers['toUrl']([]);
+  }
+
 }

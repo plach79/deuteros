@@ -422,4 +422,47 @@ class EntityDoubleDefinitionBuilderTest extends TestCase {
     $this->assertContains(SecondTestTrait::class, $modified->traits);
   }
 
+  /**
+   * Tests the url() method with a static value.
+   */
+  public function testUrlBuilder(): void {
+    $definition = EntityDoubleDefinitionBuilder::create('node')
+      ->url('/node/1')
+      ->build();
+
+    $this->assertSame('/node/1', $definition->url);
+  }
+
+  /**
+   * Tests the url() method with a callable.
+   */
+  public function testUrlBuilderWithCallable(): void {
+    $callback = static function (array $context): string {
+      $id = $context['id'] ?? '';
+      assert(is_scalar($id));
+      return '/node/' . $id;
+    };
+
+    $definition = EntityDoubleDefinitionBuilder::create('node')
+      ->url($callback)
+      ->build();
+
+    $this->assertSame($callback, $definition->url);
+  }
+
+  /**
+   * Tests from() preserves url from an existing definition.
+   */
+  public function testFromPreservesUrl(): void {
+    $original = EntityDoubleDefinitionBuilder::create('node')
+      ->url('/node/42')
+      ->build();
+
+    $modified = EntityDoubleDefinitionBuilder::from($original)
+      ->label('New Label')
+      ->build();
+
+    $this->assertSame('/node/42', $modified->url);
+  }
+
 }

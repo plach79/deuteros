@@ -62,6 +62,8 @@ final readonly class EntityDoubleDefinition {
    *   Whether to use lenient mode (return null for unconfigured methods).
    * @param list<class-string> $traits
    *   Traits to apply to the entity double.
+   * @param mixed $url
+   *   The URL for ::toUrl (scalar or callable).
    *
    * @throws \InvalidArgumentException
    *   If fields are defined but FieldableEntityInterface is not in interfaces.
@@ -80,6 +82,7 @@ final readonly class EntityDoubleDefinition {
     public ?string $primaryInterface = NULL,
     public bool $lenient = FALSE,
     public array $traits = [],
+    public mixed $url = NULL,
   ) {
     // Validate that fields are only used with "FieldableEntityInterface".
     if ($fields !== [] && !in_array(FieldableEntityInterface::class, $interfaces, TRUE)) {
@@ -209,6 +212,7 @@ final readonly class EntityDoubleDefinition {
       primaryInterface: $this->primaryInterface,
       lenient: $this->lenient,
       traits: $this->traits,
+      url: $this->url,
     );
   }
 
@@ -239,6 +243,7 @@ final readonly class EntityDoubleDefinition {
       primaryInterface: $this->primaryInterface,
       lenient: $this->lenient,
       traits: $this->traits,
+      url: $this->url,
     );
   }
 

@@ -9,6 +9,7 @@ use Deuteros\Prophecy\ProphecyEntityDoubleFactory;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Url;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -28,12 +29,12 @@ use PHPUnit\Framework\TestCase;
  * - Context propagation to callbacks
  * - Mutable doubles for testing entity modifications
  * - Entity reference traversal via entity property and referencedEntities()
+ * - URL generation via url() builder method and toUrl()
  *
  * Explicitly unsupported behaviors (will throw):
  * - ::save, ::delete - requires entity storage
  * - ::access - requires access control services
  * - ::getTranslation - requires translation services
- * - ::toUrl - requires routing services
  *
  * This is a unit-test value object only. Use Kernel tests for behaviors that
  * require runtime services.
@@ -167,6 +168,16 @@ abstract class EntityDoubleFactory implements EntityDoubleFactoryInterface {
         return $this->createFieldItemListDouble($fieldName, $fieldDoubleDefinition, $definition, $mutableState, $context);
       }
     );
+
+    // Set up URL double factory if URL is configured.
+    if ($definition->url !== NULL) {
+      $builder->setUrlDoubleFactory(
+        function (string $url, array $context) {
+          /** @var array<string, mixed> $context */
+          return $this->createUrlDouble($url, $context);
+        }
+      );
+    }
 
     // Create the double.
     $double = $this->createDoubleForInterfaces($interfaces);
@@ -418,6 +429,56 @@ abstract class EntityDoubleFactory implements EntityDoubleFactoryInterface {
   }
 
   /**
+   * Creates a Url double.
+   *
+   * Creates a Url mock/prophecy with ::toString wired to return the URL string
+   * or a GeneratedUrl double when $collect_bubbleable_metadata is TRUE.
+   *
+   * @param string $url
+   *   The URL string.
+   * @param array<string, mixed> $context
+   *   The context.
+   *
+   * @return \Drupal\Core\Url
+   *   The Url double.
+   */
+  protected function createUrlDouble(string $url, array $context): Url {
+    $urlBuilder = new UrlDoubleBuilder($url);
+
+    // Set up GeneratedUrl factory.
+    $urlBuilder->setGeneratedUrlFactory(
+      function (string $generatedUrl) use ($context) {
+        return $this->createGeneratedUrlDouble($generatedUrl, $context);
+      }
+    );
+
+    // Create the double.
+    $double = $this->createUrlDoubleObject();
+
+    // Wire up resolvers.
+    $this->wireUrlResolvers($double, $urlBuilder, $context);
+
+    return $this->instantiateUrlDouble($double);
+  }
+
+  /**
+   * Creates a GeneratedUrl double.
+   *
+   * @param string $url
+   *   The URL string.
+   * @param array<string, mixed> $context
+   *   The context.
+   *
+   * @return object
+   *   The GeneratedUrl double.
+   */
+  protected function createGeneratedUrlDouble(string $url, array $context): object {
+    $double = $this->createGeneratedUrlDoubleObject();
+    $this->wireGeneratedUrlResolvers($double, $url);
+    return $this->instantiateGeneratedUrlDouble($double);
+  }
+
+  /**
    * Creates a trait stub that extends the entity double and uses the traits.
    *
    * Generates a stub class dynamically that extends the double's class and
@@ -652,5 +713,65 @@ abstract class EntityDoubleFactory implements EntityDoubleFactoryInterface {
    *   The revealed field item.
    */
   abstract protected function instantiateFieldItemDouble(object $double): FieldItemInterface;
+
+  /**
+   * Creates a Url double object.
+   *
+   * @return object
+   *   The mock/prophecy object (not revealed).
+   */
+  abstract protected function createUrlDoubleObject(): object;
+
+  /**
+   * Creates a GeneratedUrl double object.
+   *
+   * @return object
+   *   The mock/prophecy object (not revealed).
+   */
+  abstract protected function createGeneratedUrlDoubleObject(): object;
+
+  /**
+   * Wires Url method resolvers to the double.
+   *
+   * @param object $double
+   *   The mock/prophecy object.
+   * @param \Deuteros\Common\UrlDoubleBuilder $builder
+   *   The URL builder.
+   * @param array<string, mixed> $context
+   *   The context.
+   */
+  abstract protected function wireUrlResolvers(object $double, UrlDoubleBuilder $builder, array $context): void;
+
+  /**
+   * Wires GeneratedUrl method resolvers to the double.
+   *
+   * @param object $double
+   *   The mock/prophecy object.
+   * @param string $url
+   *   The URL string.
+   */
+  abstract protected function wireGeneratedUrlResolvers(object $double, string $url): void;
+
+  /**
+   * Reveals a Url double.
+   *
+   * @param object $double
+   *   The mock/prophecy object.
+   *
+   * @return \Drupal\Core\Url
+   *   The revealed Url.
+   */
+  abstract protected function instantiateUrlDouble(object $double): Url;
+
+  /**
+   * Reveals a GeneratedUrl double.
+   *
+   * @param object $double
+   *   The mock/prophecy object.
+   *
+   * @return object
+   *   The revealed GeneratedUrl.
+   */
+  abstract protected function instantiateGeneratedUrlDouble(object $double): object;
 
 }

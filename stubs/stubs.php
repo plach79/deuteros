@@ -26,6 +26,8 @@ interface EntityInterface {
 
   public function label();
 
+  public function toUrl($rel = NULL, array $options = []);
+
   public function save();
 
   public function delete();
@@ -143,4 +145,19 @@ interface NodeInterface extends ContentEntityInterface, EntityChangedInterface, 
 
   public function isSticky();
 
+}
+
+// URL classes.
+namespace Drupal\Core;
+
+class Url {
+  public function toString($collect_bubbleable_metadata = FALSE) {
+    return '';
+  }
+}
+
+class GeneratedUrl {
+  public function getGeneratedUrl() {
+    return '';
+  }
 }

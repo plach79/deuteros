@@ -22,7 +22,6 @@ final class GuardrailEnforcer {
     'save' => 'Saving entities',
     'delete' => 'Deleting entities',
     'access' => 'Access checking',
-    'toUrl' => 'URL generation',
     'toLink' => 'Link generation',
     'getTypedData' => 'Typed data access',
     'getFieldDefinition' => 'Field definition access',
