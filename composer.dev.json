@@ -1,5 +1,5 @@
 {
-  "name": "plach79/deuteros",
+  "name": "deuteros-php/deuteros",
   "description": "Drupal Entity Unit Test Extensible Replacement Object Scaffolding - Value-object entity doubles for unit testing",
   "type": "library",
   "license": "GPL-2.0-or-later",
