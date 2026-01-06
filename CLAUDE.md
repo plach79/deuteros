@@ -178,7 +178,17 @@ While working on any code change:
 - quality checks should always be run
 - documentation should be updated including CLAUDE.MD (this file)
 - test coverage should follow the test pyramid paradigm
-- @composer.dev.json should be used when running quality checks: always prefer unit tests over integration tests, when possible 
+- @composer.dev.json should be used when running quality checks: always prefer unit tests over integration tests, when possible
+
+## Test Pyramid Rules
+
+When writing or reviewing tests, follow these rules:
+
+1. **Lower-level test for every failure**: If an integration test catches a bug
+   but no unit test fails, write a unit test that catches it first
+2. **Push tests down**: If behavior can be tested at the unit level, don't
+   duplicate it at the integration level. Integration tests should only verify
+   what unit tests cannot (adapter parity, cross-component integration) 
 
 ## Test Structure
 

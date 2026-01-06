@@ -11,7 +11,10 @@ use Deuteros\Tests\Fixtures\TestBundleTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\node\NodeInterface;
+use Drupal\user\EntityOwnerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -463,6 +466,43 @@ class EntityDoubleDefinitionBuilderTest extends TestCase {
       ->build();
 
     $this->assertSame('/node/42', $modified->url);
+  }
+
+  /**
+   * Tests ::fromInterface() detects full "NodeInterface" hierarchy.
+   *
+   * This test verifies that the full interface hierarchy is properly detected
+   * and all ancestor interfaces are included.
+   */
+  public function testFromInterfaceDetectsNodeInterfaceHierarchy(): void {
+    $definition = EntityDoubleDefinitionBuilder::fromInterface(
+      'node',
+      NodeInterface::class
+    )->build();
+
+    // NodeInterface itself.
+    $this->assertContains(NodeInterface::class, $definition->interfaces);
+
+    // ContentEntityInterface (parent of NodeInterface).
+    $this->assertContains(ContentEntityInterface::class, $definition->interfaces);
+
+    // FieldableEntityInterface (parent of ContentEntityInterface).
+    $this->assertContains(FieldableEntityInterface::class, $definition->interfaces);
+
+    // EntityInterface (root).
+    $this->assertContains(EntityInterface::class, $definition->interfaces);
+
+    // EntityChangedInterface (NodeInterface extends this).
+    $this->assertContains(EntityChangedInterface::class, $definition->interfaces);
+
+    // EntityOwnerInterface (NodeInterface extends this).
+    $this->assertContains(EntityOwnerInterface::class, $definition->interfaces);
+
+    // EntityPublishedInterface (NodeInterface extends this).
+    $this->assertContains(EntityPublishedInterface::class, $definition->interfaces);
+
+    // Traversable should be kept for foreach support.
+    $this->assertContains(\Traversable::class, $definition->interfaces);
   }
 
 }

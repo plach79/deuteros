@@ -7,22 +7,16 @@ namespace Deuteros\Tests\Integration;
 use Deuteros\Double\EntityDoubleDefinitionBuilder;
 use Deuteros\Double\PhpUnit\MockEntityDoubleFactory;
 use Deuteros\Double\Prophecy\ProphecyEntityDoubleFactory;
-use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityPublishedInterface;
-use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\node\NodeInterface;
-use Drupal\user\EntityOwnerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
- * Tests fromInterface() with NodeInterface.
+ * Tests "NodeInterface" doubles with PHPUnit and Prophecy adapters.
  *
- * This test verifies that the full NodeInterface hierarchy is properly
- * detected and all ancestor interfaces are included.
+ * These tests verify adapter parity when creating "NodeInterface" doubles
+ * and that lenient mode works correctly with the full interface hierarchy.
  */
 #[Group('deuteros')]
 class NodeInterfaceTest extends TestCase {
@@ -30,41 +24,7 @@ class NodeInterfaceTest extends TestCase {
   use ProphecyTrait;
 
   /**
-   * Tests fromInterface() detects full NodeInterface hierarchy.
-   */
-  public function testNodeInterfaceHierarchyDetection(): void {
-    $definition = EntityDoubleDefinitionBuilder::fromInterface(
-      'node',
-      NodeInterface::class
-    )->build();
-
-    // NodeInterface itself.
-    $this->assertContains(NodeInterface::class, $definition->interfaces);
-
-    // ContentEntityInterface (parent of NodeInterface).
-    $this->assertContains(ContentEntityInterface::class, $definition->interfaces);
-
-    // FieldableEntityInterface (parent of ContentEntityInterface).
-    $this->assertContains(FieldableEntityInterface::class, $definition->interfaces);
-
-    // EntityInterface (root).
-    $this->assertContains(EntityInterface::class, $definition->interfaces);
-
-    // EntityChangedInterface (NodeInterface extends this).
-    $this->assertContains(EntityChangedInterface::class, $definition->interfaces);
-
-    // EntityOwnerInterface (NodeInterface extends this).
-    $this->assertContains(EntityOwnerInterface::class, $definition->interfaces);
-
-    // EntityPublishedInterface (NodeInterface extends this).
-    $this->assertContains(EntityPublishedInterface::class, $definition->interfaces);
-
-    // Traversable should be kept for foreach support.
-    $this->assertContains(\Traversable::class, $definition->interfaces);
-  }
-
-  /**
-   * Tests creating a NodeInterface double with PHPUnit mocks.
+   * Tests creating a "NodeInterface" double with PHPUnit mocks.
    */
   public function testNodeInterfaceWithPhpUnit(): void {
     $factory = MockEntityDoubleFactory::fromTest($this);
