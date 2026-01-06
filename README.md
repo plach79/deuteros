@@ -1,6 +1,6 @@
 # Deuteros
 
-[![CI](https://github.com/plach79/deuteros/actions/workflows/ci.yml/badge.svg)](https://github.com/plach79/deuteros/actions/workflows/ci.yml)
+[![CI](https://github.com/deuteros-php/deuteros/actions/workflows/ci.yml/badge.svg)](https://github.com/deuteros-php/deuteros/actions/workflows/ci.yml)
 
 > δεύτερος • (deúteros): second of two
 
@@ -11,7 +11,7 @@ A PHP library providing value-object entity doubles for Drupal unit testing, all
 ## Installation
 
 ```bash
-composer require --dev plach79/deuteros
+composer require --dev deuteros-php/deuteros
 ```
 
 ## Documentation

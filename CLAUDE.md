@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **DEUTEROS** (Drupal Entity Unit Test Extensible Replacement Object Scaffolding) is a PHP library providing value-object entity doubles for Drupal unit testing. It allows testing code that depends on entity/field interfaces without Kernel tests, module enablement, database access, or service container.
 
-- **Composer package:** `plach79/deuteros`
+- **Composer package:** `deuteros-php/deuteros`
 - **Root namespace:** `\Deuteros`
 - **PHP version:** 8.3+
 - **Drupal compatibility:** 10.x, 11.x

@@ -25,7 +25,7 @@ Deuteros lets you create lightweight entity doubles that implement Drupal's enti
 ## Installation
 
 ```bash
-composer require --dev plach79/Deuteros
+composer require --dev deuteros-php/Deuteros
 ```
 
 ### Requirements
