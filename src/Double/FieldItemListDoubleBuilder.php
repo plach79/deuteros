@@ -99,6 +99,7 @@ final class FieldItemListDoubleBuilder {
       '__set' => $this->buildMagicSetResolver(),
       'referencedEntities' => $this->buildReferencedEntitiesResolver(),
       'getIterator' => $this->buildIteratorResolver(),
+      'count' => $this->buildCountResolver(),
     ];
   }
 
@@ -302,6 +303,21 @@ final class FieldItemListDoubleBuilder {
         $items[] = $this->getFieldItemDouble($delta, $value, $context);
       }
       return new \ArrayIterator($items);
+    };
+  }
+
+  /**
+   * Builds the ::count resolver.
+   *
+   * Returns the number of field items in the list.
+   *
+   * @return callable
+   *   The resolver callable.
+   */
+  private function buildCountResolver(): callable {
+    return function (array $context): int {
+      /** @var array<string, mixed> $context */
+      return count($this->resolveValues($context));
     };
   }
 

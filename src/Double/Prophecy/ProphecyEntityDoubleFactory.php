@@ -254,6 +254,12 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
       $prophecy->getIterator()->will(fn() => $resolvers['getIterator']($context));
     }
 
+    // Wire count if the prophecy implements Countable.
+    // @phpstan-ignore function.alreadyNarrowedType
+    if (method_exists($prophecy->reveal(), 'count')) {
+      $prophecy->count()->will(fn() => $resolvers['count']($context));
+    }
+
     // Manually add MethodProphecy for ::__get since Prophecy's "ObjectProphecy"
     // intercepts ::__get calls instead of treating them as method stubs.
     $getMethodProphecy = new MethodProphecy($prophecy, '__get', [Argument::type('string')]);

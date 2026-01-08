@@ -243,6 +243,11 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
       $mock->method('getIterator')->willReturnCallback(fn() => $resolvers['getIterator']($context));
     }
 
+    // Wire count if the mock implements Countable.
+    if (method_exists($mock, 'count')) {
+      $mock->method('count')->willReturnCallback(fn() => $resolvers['count']($context));
+    }
+
     if ($definition->mutable) {
       $self = $mock;
       $mock->method('setValue')->willReturnCallback(

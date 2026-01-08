@@ -412,6 +412,44 @@ class FieldItemListDoubleBuilderTest extends TestCase {
   }
 
   /**
+   * Tests ::count resolver returns number of items.
+   */
+  public function testCountResolver(): void {
+    $values = [
+      ['target_id' => 1],
+      ['target_id' => 2],
+      ['target_id' => 3],
+    ];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_tags');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertSame(3, $resolvers['count']([]));
+  }
+
+  /**
+   * Tests ::count resolver returns zero for empty field.
+   */
+  public function testCountResolverEmpty(): void {
+    $definition = new FieldDoubleDefinition([]);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_test');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertSame(0, $resolvers['count']([]));
+  }
+
+  /**
+   * Tests ::count resolver returns one for scalar value.
+   */
+  public function testCountResolverScalar(): void {
+    $definition = new FieldDoubleDefinition('single value');
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_text');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertSame(1, $resolvers['count']([]));
+  }
+
+  /**
    * Tests ::getFieldName returns the field name.
    */
   public function testGetFieldName(): void {
