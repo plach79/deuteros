@@ -93,7 +93,7 @@ Workflow file: `.github/workflows/ci.yml`
 
 2. **Core Resolution Layer** (`Deuteros\Double\*DoubleBuilder`)
    - `EntityDoubleBuilder` - Resolvers for entity methods (id, uuid, bundle, toUrl, etc.)
-   - `FieldItemListDoubleBuilder` - Resolvers for field lists (first, get, getValue)
+   - `FieldItemListDoubleBuilder` - Resolvers for field lists (first, get, getValue, getIterator, count)
    - `FieldItemDoubleBuilder` - Resolvers for field items
    - `UrlDoubleBuilder` - Resolvers for Url doubles (toString)
    - Framework-agnostic: no PHPUnit/Prophecy references
@@ -147,6 +147,22 @@ be used by user-provided context.
 - The stub's internal state is copied from the original double (adapter-specific)
 - PHPUnit: All mock properties are copied via reflection
 - Prophecy: The `objectProphecyClosure` property is copied to maintain prophecy binding
+
+**Static Cache Clearing:**
+- `EntityDoubleFactory::clearStaticCaches()` clears runtime interface and trait stub
+  class caches - useful for testing the factory itself
+- In normal test usage, caches are deterministic (same inputs = same cached output),
+  so clearing is not required between tests
+
+**Iterator/Countable Support:**
+- Field item lists support `foreach` via `::getIterator` (if interface extends
+  `\IteratorAggregate`) and `count()` via `::count` (if interface extends `\Countable`)
+- Adapters conditionally wire these methods only when the interface supports them
+
+**Resolver Return Placeholders:**
+- `::set`, `::setValue` resolvers in builders return anonymous objects as placeholders
+- Factory adapters convert these to return the actual entity/field list/item instance
+- This supports Drupal's fluent method chaining (e.g., `$entity->set('foo', 'bar')->save()`)
 
 ## PHP 8.3 Features Used
 
