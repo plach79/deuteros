@@ -84,45 +84,6 @@ final class GuardrailEnforcer {
   }
 
   /**
-   * Creates an exception for a missing resolver.
-   *
-   * @param string $method
-   *   The method name.
-   * @param string $interface
-   *   The interface declaring the method.
-   *
-   * @return \LogicException
-   *   The exception to throw.
-   */
-  public static function createMissingResolverException(string $method, string $interface): \LogicException {
-    return new \LogicException(sprintf(
-      "Method '%s' on interface '%s' requires a resolver in method overrides. "
-      . "Add '%s' => callable to your entity double definition.",
-      $method,
-      $interface,
-      $method
-    ));
-  }
-
-  /**
-   * Creates an exception for a missing resolver without known interface.
-   *
-   * @param string $method
-   *   The method name.
-   *
-   * @return \LogicException
-   *   The exception to throw.
-   */
-  public static function createMissingResolverExceptionGeneric(string $method): \LogicException {
-    return new \LogicException(sprintf(
-      "Method '%s' requires a resolver in method overrides. "
-      . "Add '%s' => callable to your entity double definition.",
-      $method,
-      $method
-    ));
-  }
-
-  /**
    * Gets the default return value for lenient mode.
    *
    * In lenient mode, unconfigured methods return null instead of throwing.
