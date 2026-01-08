@@ -120,7 +120,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         $revealed = NULL;
         $prophecy->set(Argument::type('string'), Argument::any(), Argument::any())->will(
           function (array $args) use ($resolvers, $context, &$revealed, $prophecy): mixed {
-                    $resolvers['set']($context, (string) $args[0], $args[1], $args[2] ?? TRUE);
+            $resolvers['set']($context, (string) $args[0], $args[1], $args[2] ?? TRUE);
             if ($revealed === NULL) {
               $revealed = $prophecy->reveal();
             }
@@ -131,10 +131,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
       else {
         $prophecy->set(Argument::type('string'), Argument::any(), Argument::any())->will(
           function (array $args): never {
-            throw new \LogicException(
-                        "Cannot modify field '" . (string) $args[0] . "' on immutable entity double. "
-              . "Use createMutable() if you need to test mutations."
-            );
+            throw new \LogicException(sprintf(self::IMMUTABLE_FIELD_ERROR, (string) $args[0]));
           }
         );
       }
@@ -149,7 +146,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
       $setMethodProphecy = new MethodProphecy($prophecy, '__set', [Argument::type('string'), Argument::any()]);
       $setMethodProphecy->will(
         function (array $args) use ($resolvers, $context): void {
-                $resolvers['set']($context, (string) $args[0], $args[1], TRUE);
+          $resolvers['set']($context, (string) $args[0], $args[1], TRUE);
         }
       );
       $prophecy->addMethodProphecy($setMethodProphecy);
@@ -158,10 +155,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
       $setMethodProphecy = new MethodProphecy($prophecy, '__set', [Argument::type('string'), Argument::any()]);
       $setMethodProphecy->will(
         function (array $args): never {
-          throw new \LogicException(
-                    "Cannot modify field '" . (string) $args[0] . "' on immutable entity double. "
-            . "Use createMutable() if you need to test mutations."
-          );
+          throw new \LogicException(sprintf(self::IMMUTABLE_FIELD_ERROR, (string) $args[0]));
         }
       );
       $prophecy->addMethodProphecy($setMethodProphecy);
@@ -175,10 +169,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
     }
     elseif (!$definition->hasMethod('toUrl')) {
       $prophecy->toUrl(Argument::cetera())->will(
-        fn() => throw new \LogicException(
-          "Method 'toUrl' requires url() to be configured in the entity double definition. "
-          . "Add ->url('/path/to/entity') to your builder."
-        )
+        fn() => throw new \LogicException(self::TO_URL_NOT_CONFIGURED_ERROR)
       );
     }
 
@@ -293,10 +284,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
     else {
       $prophecy->setValue(Argument::any(), Argument::any())->will(
         function () use ($fieldName): never {
-          throw new \LogicException(
-            "Cannot modify field '$fieldName' on immutable entity double. "
-            . "Use createMutable() if you need to test mutations."
-          );
+          throw new \LogicException(sprintf(self::IMMUTABLE_FIELD_ERROR, $fieldName));
         }
       );
 
@@ -304,10 +292,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
       $setMethodProphecy = new MethodProphecy($prophecy, '__set', [Argument::type('string'), Argument::any()]);
       $setMethodProphecy->will(
         function () use ($fieldName): never {
-          throw new \LogicException(
-            "Cannot modify field '$fieldName' on immutable entity double. "
-            . "Use createMutable() if you need to test mutations."
-          );
+          throw new \LogicException(sprintf(self::IMMUTABLE_FIELD_ERROR, $fieldName));
         }
       );
       $prophecy->addMethodProphecy($setMethodProphecy);
@@ -364,10 +349,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
     else {
       $prophecy->setValue(Argument::any(), Argument::any())->will(
         function () use ($delta): never {
-          throw new \LogicException(
-            "Cannot modify field item at delta $delta on immutable entity double. "
-            . "Use createMutable() if you need to test mutations."
-          );
+          throw new \LogicException(sprintf(self::IMMUTABLE_FIELD_ITEM_ERROR, $delta));
         }
       );
 
@@ -377,10 +359,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         function (array $args): never {
           $name = $args[0];
           assert(is_string($name));
-          throw new \LogicException(
-            "Cannot modify property '" . $name . "' on immutable entity double. "
-            . "Use createMutable() if you need to test mutations."
-          );
+          throw new \LogicException(sprintf(self::IMMUTABLE_PROPERTY_ERROR, $name));
         }
       );
       $prophecy->addMethodProphecy($setMethodProphecy);

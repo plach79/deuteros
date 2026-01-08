@@ -66,6 +66,54 @@ use PHPUnit\Framework\TestCase;
 abstract class EntityDoubleFactory implements EntityDoubleFactoryInterface {
 
   /**
+   * Error message template for immutable field mutation.
+   *
+   * Use sprintf() with field name as the first argument.
+   */
+  protected const IMMUTABLE_FIELD_ERROR = "Cannot modify field '%s' on immutable entity double. Use createMutable() if you need to test mutations.";
+
+  /**
+   * Error message template for immutable property mutation.
+   *
+   * Use sprintf() with property name as the first argument.
+   */
+  protected const IMMUTABLE_PROPERTY_ERROR = "Cannot modify property '%s' on immutable entity double. Use createMutable() if you need to test mutations.";
+
+  /**
+   * Error message template for immutable field item mutation.
+   *
+   * Use sprintf() with delta as the first argument.
+   */
+  protected const IMMUTABLE_FIELD_ITEM_ERROR = "Cannot modify field item at delta %d on immutable entity double. Use createMutable() if you need to test mutations.";
+
+  /**
+   * Error message for unconfigured toUrl method.
+   */
+  protected const TO_URL_NOT_CONFIGURED_ERROR = "Method 'toUrl' requires url() to be configured in the entity double definition. Add ->url('/path/to/entity') to your builder.";
+
+  /**
+   * Core entity methods that are wired by adapters.
+   *
+   * These methods receive special handling in wireEntityResolvers and should
+   * not be wired again via method overrides.
+   *
+   * @var list<string>
+   */
+  protected const CORE_ENTITY_METHODS = [
+    'id',
+    'uuid',
+    'label',
+    'bundle',
+    'getEntityTypeId',
+    'hasField',
+    'get',
+    'set',
+    '__get',
+    '__set',
+    'toUrl',
+  ];
+
+  /**
    * Cache of generated runtime interfaces.
    *
    * Maps sorted interface list (as cache key) to generated interface name.

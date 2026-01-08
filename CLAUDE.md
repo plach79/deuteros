@@ -164,6 +164,15 @@ be used by user-provided context.
 - Factory adapters convert these to return the actual entity/field list/item instance
 - This supports Drupal's fluent method chaining (e.g., `$entity->set('foo', 'bar')->save()`)
 
+**Shared Adapter Constants:**
+- Error message templates are defined as protected constants in `EntityDoubleFactory`:
+  - `IMMUTABLE_FIELD_ERROR` - for field mutation on immutable doubles
+  - `IMMUTABLE_PROPERTY_ERROR` - for property mutation on immutable doubles
+  - `IMMUTABLE_FIELD_ITEM_ERROR` - for field item mutation on immutable doubles
+  - `TO_URL_NOT_CONFIGURED_ERROR` - for unconfigured toUrl calls
+- `CORE_ENTITY_METHODS` lists methods with special handling (id, uuid, etc.)
+- Adapters use these constants to ensure consistent error messages
+
 ## PHP 8.3 Features Used
 
 The codebase leverages modern PHP features:
