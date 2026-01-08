@@ -692,4 +692,243 @@ abstract class EntityDoubleFactoryTestBase extends TestCase {
     unset($fieldList[0]);
   }
 
+  /**
+   * Tests empty string field values.
+   */
+  public function testEdgeCaseEmptyStringFieldValue(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_title', '')
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_title');
+    $this->assertSame('', $fieldList->value);
+    $this->assertFalse($fieldList->isEmpty());
+    $this->assertSame([['value' => '']], $fieldList->getValue());
+  }
+
+  /**
+   * Tests Unicode characters in field values.
+   */
+  public function testEdgeCaseUnicodeFieldValue(): void {
+    $unicodeValue = '日本語テスト 🎉 مرحبا العالم Ñoño';
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_unicode', $unicodeValue)
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_unicode');
+    $this->assertSame($unicodeValue, $fieldList->value);
+    $this->assertSame([['value' => $unicodeValue]], $fieldList->getValue());
+  }
+
+  /**
+   * Tests very long field values.
+   */
+  public function testEdgeCaseVeryLongFieldValue(): void {
+    $longValue = str_repeat('a', 100000);
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_long', $longValue)
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_long');
+    $this->assertSame($longValue, $fieldList->value);
+    $this->assertSame(100000, strlen($fieldList->value));
+  }
+
+  /**
+   * Tests deeply nested entity references.
+   */
+  public function testEdgeCaseDeeplyNestedEntityReferences(): void {
+    // Create a chain: entity1 -> entity2 -> entity3 -> entity4.
+    $entity4 = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(4)
+        ->label('Level 4')
+        ->build()
+    );
+
+    $entity3 = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(3)
+        ->label('Level 3')
+        ->field('field_ref', $entity4)
+        ->build()
+    );
+
+    $entity2 = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(2)
+        ->label('Level 2')
+        ->field('field_ref', $entity3)
+        ->build()
+    );
+
+    $entity1 = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(1)
+        ->label('Level 1')
+        ->field('field_ref', $entity2)
+        ->build()
+    );
+
+    assert($entity1 instanceof FieldableEntityInterface);
+    assert($entity2 instanceof FieldableEntityInterface);
+    assert($entity3 instanceof FieldableEntityInterface);
+
+    // Navigate the chain.
+    $ref1 = $entity1->get('field_ref')->entity;
+    $this->assertSame('Level 2', $ref1->label());
+
+    $ref2 = $entity2->get('field_ref')->entity;
+    $this->assertSame('Level 3', $ref2->label());
+
+    $ref3 = $entity3->get('field_ref')->entity;
+    $this->assertSame('Level 4', $ref3->label());
+  }
+
+  /**
+   * Tests circular entity references.
+   *
+   * While circular references are generally bad practice, the double system
+   * should handle them gracefully by returning the same double instance.
+   */
+  public function testEdgeCaseCircularEntityReferences(): void {
+    // Create entity1 first without a reference.
+    $entity1 = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(1)
+        ->label('Entity 1')
+        ->build()
+    );
+
+    // Create entity2 referencing entity1.
+    $entity2 = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(2)
+        ->label('Entity 2')
+        ->field('field_ref', $entity1)
+        ->build()
+    );
+
+    assert($entity2 instanceof FieldableEntityInterface);
+
+    // Verify entity2 can reference entity1.
+    $this->assertSame('Entity 1', $entity2->get('field_ref')->entity->label());
+    $this->assertSame(1, $entity2->get('field_ref')->entity->id());
+  }
+
+  /**
+   * Tests null field values.
+   */
+  public function testEdgeCaseNullFieldValue(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_nullable', NULL)
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_nullable');
+    $this->assertTrue($fieldList->isEmpty());
+    $this->assertNull($fieldList->first());
+    $this->assertSame([], $fieldList->getValue());
+  }
+
+  /**
+   * Tests field with array value containing null.
+   */
+  public function testEdgeCaseFieldWithNullInArray(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_mixed', [
+          ['value' => 'first'],
+          ['value' => NULL],
+          ['value' => 'third'],
+        ])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_mixed');
+    $item0 = $fieldList->get(0);
+    $item1 = $fieldList->get(1);
+    $item2 = $fieldList->get(2);
+    $this->assertNotNull($item0);
+    $this->assertNotNull($item1);
+    $this->assertNotNull($item2);
+    // @phpstan-ignore property.notFound
+    $this->assertSame('first', $item0->value);
+    // @phpstan-ignore property.notFound
+    $this->assertNull($item1->value);
+    // @phpstan-ignore property.notFound
+    $this->assertSame('third', $item2->value);
+    $this->assertCount(3, $fieldList);
+  }
+
+  /**
+   * Tests special characters in entity label.
+   */
+  public function testEdgeCaseSpecialCharactersInLabel(): void {
+    $specialLabel = '<script>alert("xss")</script> & "quotes" \'apostrophes\'';
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id(1)
+        ->label($specialLabel)
+        ->build()
+    );
+
+    $this->assertSame($specialLabel, $entity->label());
+  }
+
+  /**
+   * Tests numeric string ID.
+   */
+  public function testEdgeCaseNumericStringId(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->id('123')
+        ->build()
+    );
+
+    $this->assertSame('123', $entity->id());
+  }
+
+  /**
+   * Tests zero as field value.
+   */
+  public function testEdgeCaseZeroFieldValue(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_count', 0)
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_count');
+    $this->assertSame(0, $fieldList->value);
+    $this->assertFalse($fieldList->isEmpty());
+  }
+
 }
