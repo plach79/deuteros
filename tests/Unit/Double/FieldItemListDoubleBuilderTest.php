@@ -500,6 +500,109 @@ class FieldItemListDoubleBuilderTest extends TestCase {
   }
 
   /**
+   * Tests ::offsetExists resolver returns true for existing delta.
+   */
+  public function testOffsetExistsReturnsTrue(): void {
+    $values = [
+      ['target_id' => 1],
+      ['target_id' => 2],
+    ];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_tags');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertTrue($resolvers['offsetExists']([], 0));
+    $this->assertTrue($resolvers['offsetExists']([], 1));
+  }
+
+  /**
+   * Tests ::offsetExists resolver returns false for non-existing delta.
+   */
+  public function testOffsetExistsReturnsFalse(): void {
+    $values = [
+      ['target_id' => 1],
+    ];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_tags');
+    $resolvers = $builder->getResolvers();
+
+    $this->assertFalse($resolvers['offsetExists']([], 1));
+    $this->assertFalse($resolvers['offsetExists']([], 99));
+  }
+
+  /**
+   * Tests ::offsetGet resolver returns field item at delta.
+   */
+  public function testOffsetGetReturnsItem(): void {
+    $values = [
+      ['target_id' => 1],
+      ['target_id' => 2],
+    ];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_tags');
+
+    $items = [];
+    $builder->setFieldItemFactory(function (int $delta) use (&$items) {
+      $item = new \stdClass();
+      $item->delta = $delta;
+      $items[$delta] = $item;
+      return $item;
+    });
+
+    $resolvers = $builder->getResolvers();
+    $item0 = $resolvers['offsetGet']([], 0);
+    $item1 = $resolvers['offsetGet']([], 1);
+
+    // @phpstan-ignore property.nonObject
+    $this->assertSame(0, $item0->delta);
+    // @phpstan-ignore property.nonObject
+    $this->assertSame(1, $item1->delta);
+  }
+
+  /**
+   * Tests ::offsetGet resolver returns null for non-existing delta.
+   */
+  public function testOffsetGetReturnsNull(): void {
+    $values = [['target_id' => 1]];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_tags');
+    $builder->setFieldItemFactory(fn() => new \stdClass());
+    $resolvers = $builder->getResolvers();
+
+    $this->assertNull($resolvers['offsetGet']([], 99));
+  }
+
+  /**
+   * Tests ::offsetSet resolver throws an exception.
+   */
+  public function testOffsetSetThrowsException(): void {
+    $definition = new FieldDoubleDefinition('value');
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_test');
+    $resolvers = $builder->getResolvers();
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('ArrayAccess::offsetSet is not supported');
+    $this->expectExceptionMessage("set('field_test'");
+
+    $resolvers['offsetSet']([], 0, 'new value');
+  }
+
+  /**
+   * Tests ::offsetUnset resolver throws an exception.
+   */
+  public function testOffsetUnsetThrowsException(): void {
+    $definition = new FieldDoubleDefinition('value');
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_test');
+    $resolvers = $builder->getResolvers();
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('ArrayAccess::offsetUnset is not supported');
+    $this->expectExceptionMessage("set('field_test'");
+
+    $resolvers['offsetUnset']([], 0);
+  }
+
+  /**
    * Creates a mock field item factory that returns stdClass objects.
    *
    * @return callable

@@ -235,6 +235,22 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
       $mock->method('count')->willReturnCallback(fn() => $resolvers['count']($context));
     }
 
+    // Wire ArrayAccess methods if the mock implements ArrayAccess.
+    if (method_exists($mock, 'offsetExists')) {
+      $mock->method('offsetExists')->willReturnCallback(
+        fn(mixed $offset) => $resolvers['offsetExists']($context, $offset)
+      );
+      $mock->method('offsetGet')->willReturnCallback(
+        fn(mixed $offset) => $resolvers['offsetGet']($context, $offset)
+      );
+      $mock->method('offsetSet')->willReturnCallback(
+        fn(mixed $offset, mixed $value) => $resolvers['offsetSet']($context, $offset, $value)
+      );
+      $mock->method('offsetUnset')->willReturnCallback(
+        fn(mixed $offset) => $resolvers['offsetUnset']($context, $offset)
+      );
+    }
+
     if ($definition->mutable) {
       $self = $mock;
       $mock->method('setValue')->willReturnCallback(

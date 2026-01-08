@@ -258,6 +258,23 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
       $prophecy->count()->will(fn() => $resolvers['count']($context));
     }
 
+    // Wire ArrayAccess methods if the prophecy implements ArrayAccess.
+    // @phpstan-ignore function.alreadyNarrowedType
+    if (method_exists($prophecy->reveal(), 'offsetExists')) {
+      $prophecy->offsetExists(Argument::any())->will(
+        fn(array $args) => $resolvers['offsetExists']($context, $args[0])
+      );
+      $prophecy->offsetGet(Argument::any())->will(
+        fn(array $args) => $resolvers['offsetGet']($context, $args[0])
+      );
+      $prophecy->offsetSet(Argument::any(), Argument::any())->will(
+        fn(array $args) => $resolvers['offsetSet']($context, $args[0], $args[1])
+      );
+      $prophecy->offsetUnset(Argument::any())->will(
+        fn(array $args) => $resolvers['offsetUnset']($context, $args[0])
+      );
+    }
+
     // Manually add MethodProphecy for ::__get since Prophecy's "ObjectProphecy"
     // intercepts ::__get calls instead of treating them as method stubs.
     $getMethodProphecy = new MethodProphecy($prophecy, '__get', [Argument::type('string')]);

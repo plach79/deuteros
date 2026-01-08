@@ -51,7 +51,7 @@ interface FieldItemInterface {
 
 }
 
-interface FieldItemListInterface extends \IteratorAggregate, \Countable {
+interface FieldItemListInterface extends \IteratorAggregate, \Countable, \ArrayAccess {
 
   public function first();
 

@@ -159,6 +159,14 @@ be used by user-provided context.
   `\IteratorAggregate`) and `count()` via `::count` (if interface extends `\Countable`)
 - Adapters conditionally wire these methods only when the interface supports them
 
+**ArrayAccess Support:**
+- Field item lists support bracket syntax access via `\ArrayAccess` interface
+- `isset($field[0])` checks if item at delta exists (`offsetExists`)
+- `$field[0]` returns item at delta (`offsetGet`, same as `$field->get(0)`)
+- `$field[0] = $value` and `unset($field[0])` throw exceptions (not supported)
+- Adapters conditionally wire these methods only when the interface implements
+  `\ArrayAccess`
+
 **Resolver Return Placeholders:**
 - `::set`, `::setValue` resolvers in builders return anonymous objects as placeholders
 - Factory adapters convert these to return the actual entity/field list/item instance

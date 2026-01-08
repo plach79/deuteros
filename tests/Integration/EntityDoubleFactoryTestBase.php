@@ -599,4 +599,97 @@ abstract class EntityDoubleFactoryTestBase extends TestCase {
     $this->assertSame('/node/42', $generatedUrl->getGeneratedUrl());
   }
 
+  /**
+   * Tests ArrayAccess on field item list doubles.
+   */
+  public function testFieldListArrayAccessOffsetExists(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_tags', [
+          ['target_id' => 1],
+          ['target_id' => 2],
+        ])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_tags');
+
+    // offsetExists via isset().
+    $this->assertTrue(isset($fieldList[0]));
+    $this->assertTrue(isset($fieldList[1]));
+    $this->assertFalse(isset($fieldList[2]));
+  }
+
+  /**
+   * Tests ArrayAccess offsetGet on field item list doubles.
+   */
+  public function testFieldListArrayAccessOffsetGet(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_tags', [
+          ['target_id' => 1],
+          ['target_id' => 2],
+        ])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_tags');
+
+    // offsetGet via bracket syntax.
+    $item0 = $fieldList[0];
+    $item1 = $fieldList[1];
+
+    $this->assertNotNull($item0);
+    $this->assertNotNull($item1);
+    // @phpstan-ignore property.notFound
+    $this->assertSame(1, $item0->target_id);
+    // @phpstan-ignore property.notFound
+    $this->assertSame(2, $item1->target_id);
+  }
+
+  /**
+   * Tests ArrayAccess offsetSet throws exception.
+   */
+  public function testFieldListArrayAccessOffsetSetThrows(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_tags', [['target_id' => 1]])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_tags');
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('ArrayAccess::offsetSet is not supported');
+
+    // @phpstan-ignore offsetAssign.valueType
+    $fieldList[0] = ['target_id' => 99];
+  }
+
+  /**
+   * Tests ArrayAccess offsetUnset throws exception.
+   */
+  public function testFieldListArrayAccessOffsetUnsetThrows(): void {
+    $entity = $this->factory->create(
+      EntityDoubleDefinitionBuilder::create('node')
+        ->bundle('article')
+        ->field('field_tags', [['target_id' => 1]])
+        ->build()
+    );
+    assert($entity instanceof FieldableEntityInterface);
+
+    $fieldList = $entity->get('field_tags');
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('ArrayAccess::offsetUnset is not supported');
+
+    unset($fieldList[0]);
+  }
+
 }

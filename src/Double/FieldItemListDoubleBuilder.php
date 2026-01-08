@@ -100,6 +100,10 @@ final class FieldItemListDoubleBuilder {
       'referencedEntities' => $this->buildReferencedEntitiesResolver(),
       'getIterator' => $this->buildIteratorResolver(),
       'count' => $this->buildCountResolver(),
+      'offsetExists' => $this->buildOffsetExistsResolver(),
+      'offsetGet' => $this->buildOffsetGetResolver(),
+      'offsetSet' => $this->buildOffsetSetResolver(),
+      'offsetUnset' => $this->buildOffsetUnsetResolver(),
     ];
   }
 
@@ -323,6 +327,78 @@ final class FieldItemListDoubleBuilder {
     return function (array $context): int {
       /** @var array<string, mixed> $context */
       return count($this->resolveValues($context));
+    };
+  }
+
+  /**
+   * Builds the ::offsetExists resolver.
+   *
+   * Checks if an item exists at the given delta for ArrayAccess.
+   *
+   * @return callable
+   *   The resolver callable.
+   */
+  private function buildOffsetExistsResolver(): callable {
+    return function (array $context, mixed $offset): bool {
+      /** @var array<string, mixed> $context */
+      $values = $this->resolveValues($context);
+      return isset($values[(int) $offset]);
+    };
+  }
+
+  /**
+   * Builds the ::offsetGet resolver.
+   *
+   * Returns the item at the given delta for ArrayAccess. Same as ::get.
+   *
+   * @return callable
+   *   The resolver callable.
+   */
+  private function buildOffsetGetResolver(): callable {
+    // Delegate to the get resolver.
+    /** @var callable(array<string, mixed>, int): ?object $getResolver */
+    $getResolver = $this->buildGetResolver();
+    return function (array $context, mixed $offset) use ($getResolver): ?object {
+      /** @var array<string, mixed> $context */
+      return $getResolver($context, (int) $offset);
+    };
+  }
+
+  /**
+   * Builds the ::offsetSet resolver.
+   *
+   * Sets an item at the given delta for ArrayAccess. This is not supported
+   * because field item list mutation at the item level requires complex
+   * internal state management. Use ::setValue to set the entire field value.
+   *
+   * @return callable
+   *   The resolver callable.
+   */
+  private function buildOffsetSetResolver(): callable {
+    return function (array $context, mixed $offset, mixed $value): void {
+      throw new \LogicException(
+        "ArrayAccess::offsetSet is not supported on field list doubles. "
+        . "Use \$entity->set('{$this->fieldName}', \$values) instead."
+      );
+    };
+  }
+
+  /**
+   * Builds the ::offsetUnset resolver.
+   *
+   * Removes an item at the given delta for ArrayAccess. This is not supported
+   * because field item list mutation at the item level requires complex
+   * internal state management. Use ::setValue to set the entire field value.
+   *
+   * @return callable
+   *   The resolver callable.
+   */
+  private function buildOffsetUnsetResolver(): callable {
+    return function (array $context, mixed $offset): void {
+      throw new \LogicException(
+        "ArrayAccess::offsetUnset is not supported on field list doubles. "
+        . "Use \$entity->set('{$this->fieldName}', \$values) instead."
+      );
     };
   }
 
