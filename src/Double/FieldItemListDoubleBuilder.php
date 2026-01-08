@@ -256,7 +256,12 @@ final class FieldItemListDoubleBuilder {
       $this->resolvedValue = NULL;
       $this->fieldItemCache = [];
 
-      // Update the field definition.
+      // Update the field definition. Note: This intentionally mutates the
+      // builder state to track the new field value. This mutation is acceptable
+      // because: (1) it only occurs on mutable doubles, (2) each field list
+      // builder is single-use per entity double instance, and (3) the mutation
+      // enables the mutable double to return updated values on subsequent
+      // getter calls.
       $this->definition = new FieldDoubleDefinition($values);
 
       // Return placeholder object - adapters convert this to return $fieldList.
