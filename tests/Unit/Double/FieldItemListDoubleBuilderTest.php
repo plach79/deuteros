@@ -363,6 +363,55 @@ class FieldItemListDoubleBuilderTest extends TestCase {
   }
 
   /**
+   * Tests ::getIterator resolver returns an ArrayIterator.
+   */
+  public function testIteratorResolver(): void {
+    $values = [
+      ['target_id' => 1],
+      ['target_id' => 2],
+      ['target_id' => 3],
+    ];
+    $definition = new FieldDoubleDefinition($values);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_tags');
+
+    $items = [];
+    $builder->setFieldItemFactory(function (int $delta) use (&$items) {
+      $item = new \stdClass();
+      $item->delta = $delta;
+      $items[$delta] = $item;
+      return $item;
+    });
+
+    $resolvers = $builder->getResolvers();
+    $iterator = $resolvers['getIterator']([]);
+
+    $this->assertInstanceOf(\Traversable::class, $iterator);
+    $iteratedItems = iterator_to_array($iterator);
+    $this->assertCount(3, $iteratedItems);
+    // @phpstan-ignore property.nonObject
+    $this->assertSame(0, $iteratedItems[0]->delta);
+    // @phpstan-ignore property.nonObject
+    $this->assertSame(1, $iteratedItems[1]->delta);
+    // @phpstan-ignore property.nonObject
+    $this->assertSame(2, $iteratedItems[2]->delta);
+  }
+
+  /**
+   * Tests ::getIterator resolver returns empty iterator for empty field.
+   */
+  public function testIteratorResolverEmpty(): void {
+    $definition = new FieldDoubleDefinition([]);
+    $builder = new FieldItemListDoubleBuilder($definition, 'field_test');
+    $builder->setFieldItemFactory(fn() => new \stdClass());
+    $resolvers = $builder->getResolvers();
+
+    $iterator = $resolvers['getIterator']([]);
+
+    $this->assertInstanceOf(\Traversable::class, $iterator);
+    $this->assertCount(0, iterator_to_array($iterator));
+  }
+
+  /**
    * Tests ::getFieldName returns the field name.
    */
   public function testGetFieldName(): void {

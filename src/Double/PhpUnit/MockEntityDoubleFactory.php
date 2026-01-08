@@ -238,6 +238,11 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
     $mock->method('get')->willReturnCallback(fn(int $delta) => $resolvers['get']($context, $delta));
     $mock->method('__get')->willReturnCallback(fn(string $property) => $resolvers['__get']($context, $property));
 
+    // Wire getIterator if the mock implements IteratorAggregate.
+    if (method_exists($mock, 'getIterator')) {
+      $mock->method('getIterator')->willReturnCallback(fn() => $resolvers['getIterator']($context));
+    }
+
     if ($definition->mutable) {
       $self = $mock;
       $mock->method('setValue')->willReturnCallback(

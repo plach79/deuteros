@@ -249,6 +249,11 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
     $prophecy->getValue()->will(fn() => $resolvers['getValue']($context));
     $prophecy->get(Argument::type('int'))->will(fn(array $args) => $resolvers['get']($context, (int) $args[0]));
 
+    // Wire getIterator if the prophecy implements IteratorAggregate.
+    if (method_exists($prophecy->reveal(), 'getIterator')) {
+      $prophecy->getIterator()->will(fn() => $resolvers['getIterator']($context));
+    }
+
     // Manually add MethodProphecy for ::__get since Prophecy's "ObjectProphecy"
     // intercepts ::__get calls instead of treating them as method stubs.
     $getMethodProphecy = new MethodProphecy($prophecy, '__get', [Argument::type('string')]);

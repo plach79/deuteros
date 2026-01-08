@@ -98,6 +98,7 @@ final class FieldItemListDoubleBuilder {
       'setValue' => $this->buildSetValueResolver(),
       '__set' => $this->buildMagicSetResolver(),
       'referencedEntities' => $this->buildReferencedEntitiesResolver(),
+      'getIterator' => $this->buildIteratorResolver(),
     ];
   }
 
@@ -281,6 +282,26 @@ final class FieldItemListDoubleBuilder {
       else {
         throw new \LogicException("Setting property '$property' on field item list is not supported.");
       }
+    };
+  }
+
+  /**
+   * Builds the ::getIterator resolver.
+   *
+   * Returns an ArrayIterator over the field items, supporting foreach loops.
+   *
+   * @return callable
+   *   The resolver callable.
+   */
+  private function buildIteratorResolver(): callable {
+    return function (array $context): \Traversable {
+      /** @var array<string, mixed> $context */
+      $values = $this->resolveValues($context);
+      $items = [];
+      foreach ($values as $delta => $value) {
+        $items[] = $this->getFieldItemDouble($delta, $value, $context);
+      }
+      return new \ArrayIterator($items);
     };
   }
 
