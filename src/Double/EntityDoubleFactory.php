@@ -84,6 +84,21 @@ abstract class EntityDoubleFactory implements EntityDoubleFactoryInterface {
   private static array $traitStubClassCache = [];
 
   /**
+   * Clears static caches for runtime interfaces and trait stubs.
+   *
+   * This is primarily useful for testing the factory itself. In normal test
+   * usage, the caches are deterministic (same inputs produce same cached
+   * output), so clearing is not required between tests.
+   *
+   * Note: This only clears the cache mapping, not the actual generated
+   * interfaces/classes which remain in memory.
+   */
+  public static function clearStaticCaches(): void {
+    self::$runtimeInterfaceCache = [];
+    self::$traitStubClassCache = [];
+  }
+
+  /**
    * Creates the appropriate factory based on the test case's available traits.
    *
    * Detects whether the test uses Prophecy ("ProphecyTrait") or PHPUnit mocks
