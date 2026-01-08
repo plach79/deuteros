@@ -229,7 +229,7 @@ final class EntityDoubleBuilder {
    *
    * Returns an anonymous object as a placeholder. The factory adapters are
    * responsible for replacing this with the actual entity instance to support
-   * Drupal's fluent ::set() interface (method chaining). This pattern is
+   * Drupal's fluent ::set interface (method chaining). This pattern is
    * necessary because the builder doesn't have access to the mock/prophecy
    * object being created.
    *

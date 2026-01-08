@@ -90,7 +90,7 @@ final class FieldItemDoubleBuilder {
    * Builds the ::getValue resolver.
    *
    * Returns the field item value as an associative array with property names
-   * as keys, matching Drupal's "FieldItemInterface::getValue()" behavior.
+   * as keys, matching Drupal's "FieldItemInterface"::getValue behavior.
    *
    * @return callable
    *   The resolver callable.
@@ -128,7 +128,7 @@ final class FieldItemDoubleBuilder {
    *
    * Returns an anonymous object as a placeholder. The factory adapters are
    * responsible for replacing this with the actual field item instance to
-   * support Drupal's fluent ::setValue() interface (method chaining).
+   * support Drupal's fluent ::setValue interface (method chaining).
    *
    * @return callable
    *   The resolver callable.

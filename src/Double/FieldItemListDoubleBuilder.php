@@ -140,7 +140,7 @@ final class FieldItemListDoubleBuilder {
    * Builds the ::getValue resolver.
    *
    * Returns field values as an array of associative arrays with property names
-   * as keys, matching Drupal's "FieldItemListInterface::getValue()" behavior.
+   * as keys, matching Drupal's "FieldItemListInterface"::getValue behavior.
    *
    * @return callable
    *   The resolver callable.
@@ -229,7 +229,7 @@ final class FieldItemListDoubleBuilder {
    *
    * Returns an anonymous object as a placeholder. The factory adapters are
    * responsible for replacing this with the actual field list instance to
-   * support Drupal's fluent ::setValue() interface (method chaining).
+   * support Drupal's fluent ::setValue interface (method chaining).
    *
    * @return callable
    *   The resolver callable.
@@ -459,7 +459,7 @@ final class FieldItemListDoubleBuilder {
    * Builds the ::referencedEntities resolver.
    *
    * Returns an array of entity doubles keyed by delta, matching the
-   * behavior of "EntityReferenceFieldItemListInterface::referencedEntities".
+   * behavior of "EntityReferenceFieldItemListInterface"::referencedEntities.
    *
    * The returned resolver throws "LogicException" if any items have
    * "target_id" but no "entity".

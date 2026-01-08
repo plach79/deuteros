@@ -136,7 +136,7 @@ final class SubjectEntityFactory {
    * Installs the doubled container for entity testing.
    *
    * Sets up a Symfony container with doubled services required for entity
-   * instantiation and sets it on "\Drupal::setContainer()".
+   * instantiation and sets it on \Drupal::setContainer.
    *
    * Call this method in your test's "setUp()" method.
    */
