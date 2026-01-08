@@ -363,39 +363,6 @@ class FieldItemListDoubleBuilderTest extends TestCase {
   }
 
   /**
-   * Tests ::hasEntityReferences returns true after resolving entity refs.
-   */
-  public function testHasEntityReferencesTrue(): void {
-    $entity = $this->createMock(EntityInterface::class);
-    $entity->method('id')->willReturn(1);
-
-    $definition = new FieldDoubleDefinition($entity);
-    $builder = new FieldItemListDoubleBuilder($definition, 'field_ref');
-    $builder->setFieldItemFactory(fn() => new \stdClass());
-    $resolvers = $builder->getResolvers();
-
-    // Trigger value resolution.
-    $resolvers['first']([]);
-
-    $this->assertTrue($builder->hasEntityReferences());
-  }
-
-  /**
-   * Tests ::hasEntityReferences returns false for non-entity fields.
-   */
-  public function testHasEntityReferencesFalse(): void {
-    $definition = new FieldDoubleDefinition('plain value');
-    $builder = new FieldItemListDoubleBuilder($definition, 'field_text');
-    $builder->setFieldItemFactory(fn() => new \stdClass());
-    $resolvers = $builder->getResolvers();
-
-    // Trigger value resolution.
-    $resolvers['first']([]);
-
-    $this->assertFalse($builder->hasEntityReferences());
-  }
-
-  /**
    * Tests ::getFieldName returns the field name.
    */
   public function testGetFieldName(): void {

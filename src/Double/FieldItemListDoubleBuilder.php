@@ -45,11 +45,6 @@ final class FieldItemListDoubleBuilder {
   private mixed $mutableStateUpdater = NULL;
 
   /**
-   * Whether this field contains entity references.
-   */
-  private bool $hasEntityReferences = FALSE;
-
-  /**
    * Constructs a FieldItemListDoubleBuilder.
    *
    * @param \Deuteros\Double\FieldDoubleDefinition $definition
@@ -334,7 +329,6 @@ final class FieldItemListDoubleBuilder {
   private function normalizeToArray(mixed $value): array {
     // Check for entity references and normalize them.
     if (EntityReferenceNormalizer::containsEntityReferences($value)) {
-      $this->hasEntityReferences = TRUE;
       return EntityReferenceNormalizer::normalize($value);
     }
 
@@ -417,19 +411,6 @@ final class FieldItemListDoubleBuilder {
    */
   public function getFieldDefinition(): FieldDoubleDefinition {
     return $this->definition;
-  }
-
-  /**
-   * Checks if this field contains entity references.
-   *
-   * Must be called after values have been resolved (e.g., after ::getResolvers
-   * is called and one of the resolvers is invoked).
-   *
-   * @return bool
-   *   TRUE if entity references are present.
-   */
-  public function hasEntityReferences(): bool {
-    return $this->hasEntityReferences;
   }
 
   /**
