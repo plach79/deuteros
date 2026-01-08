@@ -53,9 +53,16 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
   /**
    * {@inheritdoc}
    *
+   * Override differs from base implementation:
+   *
+   * The base "EntityDoubleFactory::resolveInterfaces" deduplicates interfaces
+   * by removing parent interfaces when child interfaces are present (e.g., if
+   * both "FieldableEntityInterface" and "EntityInterface" are declared, only
+   * "FieldableEntityInterface" is kept).
+   *
    * Prophecy can handle multiple interfaces that share a common parent via
-   * ::willImplement, so we override the base implementation to keep all
-   * declared interfaces.
+   * ::willImplement, so we keep all declared interfaces without deduplication.
+   * This ensures that Prophecy correctly implements all requested interfaces.
    */
   protected function resolveInterfaces(EntityDoubleDefinition $definition): array {
     // Always include "EntityInterface".
