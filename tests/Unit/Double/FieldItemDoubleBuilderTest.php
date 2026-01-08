@@ -107,7 +107,7 @@ class FieldItemDoubleBuilderTest extends TestCase {
 
     $this->expectException(\LogicException::class);
     $this->expectExceptionMessage("Cannot modify field 'field_text' item at delta 0 on immutable");
-    $this->expectExceptionMessage('createMutableEntityDouble()');
+    $this->expectExceptionMessage('createMutable()');
 
     $resolvers['setValue']([], 'new value');
   }
@@ -174,7 +174,7 @@ class FieldItemDoubleBuilderTest extends TestCase {
 
     $this->expectException(\LogicException::class);
     $this->expectExceptionMessage("Cannot modify property 'value' on immutable");
-    $this->expectExceptionMessage('createMutableEntityDouble()');
+    $this->expectExceptionMessage('createMutable()');
 
     $resolvers['__set']([], 'value', 'new');
   }

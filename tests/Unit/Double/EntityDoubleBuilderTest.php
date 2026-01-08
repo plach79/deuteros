@@ -241,7 +241,7 @@ class EntityDoubleBuilderTest extends TestCase {
 
     $this->expectException(\LogicException::class);
     $this->expectExceptionMessage("Cannot modify field 'field_test' on immutable");
-    $this->expectExceptionMessage('createMutableEntityDouble()');
+    $this->expectExceptionMessage('createMutable()');
 
     $resolvers['set']([], 'field_test', 'new value');
   }

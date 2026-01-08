@@ -235,7 +235,7 @@ final class EntityDoubleBuilder {
       if ($this->mutableState === NULL) {
         throw new \LogicException(
               "Cannot modify field '$fieldName' on immutable entity double. "
-              . "Use createMutableEntityDouble() if you need to test mutations."
+              . "Use createMutable() if you need to test mutations."
           );
       }
 

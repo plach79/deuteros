@@ -238,7 +238,7 @@ final class FieldItemListDoubleBuilder {
       if (!$this->mutable) {
         throw new \LogicException(
           "Cannot modify field '{$this->fieldName}' on immutable entity double. "
-          . "Use createMutableEntityDouble() if you need to test mutations."
+          . "Use createMutable() if you need to test mutations."
         );
       }
 

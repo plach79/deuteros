@@ -103,7 +103,7 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
             function (string $fieldName) {
               throw new \LogicException(
                 "Cannot modify field '$fieldName' on immutable entity double. "
-                . "Use createMutableEntityDouble() if you need to test mutations."
+                . "Use createMutable() if you need to test mutations."
               );
             }
           );
@@ -131,7 +131,7 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
           function (string $name) {
             throw new \LogicException(
               "Cannot modify field '$name' on immutable entity double. "
-              . "Use createMutableEntityDouble() if you need to test mutations."
+              . "Use createMutable() if you need to test mutations."
             );
           }
         );
@@ -255,7 +255,7 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
         function () use ($fieldName) {
           throw new \LogicException(
             "Cannot modify field '$fieldName' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -263,7 +263,7 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
         function (string $property) use ($fieldName) {
           throw new \LogicException(
             "Cannot modify field '$fieldName' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -315,7 +315,7 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
         function () use ($delta) {
           throw new \LogicException(
             "Cannot modify field item at delta $delta on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -323,7 +323,7 @@ final class MockEntityDoubleFactory extends EntityDoubleFactory {
         function (string $property) {
           throw new \LogicException(
             "Cannot modify property '$property' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );

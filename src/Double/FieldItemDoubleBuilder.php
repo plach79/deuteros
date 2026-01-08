@@ -134,7 +134,7 @@ final class FieldItemDoubleBuilder {
       if (!$this->mutable) {
         throw new \LogicException(
          "Cannot modify field '{$this->fieldName}' item at delta {$this->delta} on immutable entity double. "
-          . "Use createMutableEntityDouble() if you need to test mutations."
+          . "Use createMutable() if you need to test mutations."
         );
       }
 
@@ -158,7 +158,7 @@ final class FieldItemDoubleBuilder {
       if (!$this->mutable) {
         throw new \LogicException(
           "Cannot modify property '$property' on immutable entity double. "
-          . "Use createMutableEntityDouble() if you need to test mutations."
+          . "Use createMutable() if you need to test mutations."
         );
       }
 

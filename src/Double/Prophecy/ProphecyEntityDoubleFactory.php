@@ -126,7 +126,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
           function (array $args): never {
             throw new \LogicException(
                         "Cannot modify field '" . (string) $args[0] . "' on immutable entity double. "
-              . "Use createMutableEntityDouble() if you need to test mutations."
+              . "Use createMutable() if you need to test mutations."
             );
           }
         );
@@ -153,7 +153,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         function (array $args): never {
           throw new \LogicException(
                     "Cannot modify field '" . (string) $args[0] . "' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -277,7 +277,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         function () use ($fieldName): never {
           throw new \LogicException(
             "Cannot modify field '$fieldName' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -288,7 +288,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         function () use ($fieldName): never {
           throw new \LogicException(
             "Cannot modify field '$fieldName' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -348,7 +348,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
         function () use ($delta): never {
           throw new \LogicException(
             "Cannot modify field item at delta $delta on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
@@ -361,7 +361,7 @@ final class ProphecyEntityDoubleFactory extends EntityDoubleFactory {
           assert(is_string($name));
           throw new \LogicException(
             "Cannot modify property '" . $name . "' on immutable entity double. "
-            . "Use createMutableEntityDouble() if you need to test mutations."
+            . "Use createMutable() if you need to test mutations."
           );
         }
       );
