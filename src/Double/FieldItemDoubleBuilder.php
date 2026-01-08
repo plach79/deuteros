@@ -126,8 +126,15 @@ final class FieldItemDoubleBuilder {
   /**
    * Builds the ::setValue resolver.
    *
+   * Returns an anonymous object as a placeholder. The factory adapters are
+   * responsible for replacing this with the actual field item instance to
+   * support Drupal's fluent ::setValue() interface (method chaining).
+   *
    * @return callable
    *   The resolver callable.
+   *
+   * @see \Deuteros\Double\PhpUnit\MockEntityDoubleFactory::wireFieldItemResolvers
+   * @see \Deuteros\Double\Prophecy\ProphecyEntityDoubleFactory::wireFieldItemResolvers
    */
   private function buildSetValueResolver(): callable {
     return function (array $context, mixed $value): object {
@@ -140,7 +147,7 @@ final class FieldItemDoubleBuilder {
 
       $this->value = $value;
 
-      // Return $this equivalent.
+      // Return placeholder object - adapters convert this to return $fieldItem.
       return new class () {};
     };
   }

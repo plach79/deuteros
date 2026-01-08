@@ -227,8 +227,17 @@ final class EntityDoubleBuilder {
   /**
    * Builds the ::set resolver.
    *
+   * Returns an anonymous object as a placeholder. The factory adapters are
+   * responsible for replacing this with the actual entity instance to support
+   * Drupal's fluent ::set() interface (method chaining). This pattern is
+   * necessary because the builder doesn't have access to the mock/prophecy
+   * object being created.
+   *
    * @return callable
    *   The resolver callable.
+   *
+   * @see \Deuteros\Double\PhpUnit\MockEntityDoubleFactory::wireEntityResolvers
+   * @see \Deuteros\Double\Prophecy\ProphecyEntityDoubleFactory::wireEntityResolvers
    */
   private function buildSetResolver(): callable {
     return function (array $context, string $fieldName, mixed $value, bool $notify = TRUE): object {
@@ -249,7 +258,7 @@ final class EntityDoubleBuilder {
       // Clear the field list cache so the new value is picked up.
       unset($this->fieldListCache[$fieldName]);
 
-      // Return $this equivalent - adapter must handle this.
+      // Return placeholder object - adapters convert this to return $entity.
       return new class () {};
     };
   }
