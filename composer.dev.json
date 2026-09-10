@@ -40,12 +40,16 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "config": {
+    "platform": {
+      "php": "8.3"
+    },
     "allow-plugins": {
       "composer/installers": true,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "drupal/core-composer-scaffold": true,
       "php-http/discovery": true,
       "phpstan/extension-installer": true,
+      "symfony/runtime": true,
       "tbachert/spi": true
     }
   },

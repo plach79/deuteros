@@ -33,6 +33,19 @@ composer test                 # Run all tests (alias for phpunit)
 composer install              # Uses stubs instead of Drupal core
 ```
 
+### Dev Composer Configuration Notes
+
+- `config.platform.php` is pinned to `8.3` in `composer.dev.json`. This keeps
+  local dependency resolution aligned with the minimum supported PHP version
+  and with CI (which runs PHP 8.3). Without it, a newer local PHP resolves
+  packages that require PHP 8.4+ (e.g. `symfony/string` 8.x), so changes could
+  pass locally and fail on PHP 8.3.
+- `config.allow-plugins` must list `symfony/runtime`. Drupal core 11.4 added it
+  as a direct dependency, and it ships a Composer plugin that Composer refuses
+  to run unless it is explicitly allowed.
+- The lock files (`composer.lock`, `composer.dev.lock`) are not tracked in git,
+  so CI resolves dependencies fresh on every run.
+
 ## Coding Standards
 
 The codebase follows Drupal coding standards (Drupal + DrupalPractice sniffs).
